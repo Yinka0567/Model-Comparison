@@ -159,26 +159,26 @@ The methodology emphasized fairness and replicability by using consistent data g
 ##### AUC (Area Under the Curve):
 - Naïve Bayes and Logistic Regression had the highest AUCs, demonstrating excellent class separation.
 - 	Random Forest performed well at higher sample sizes.
-- 		KNN was inconsistent.
-- 		Decision Tree had the lowest AUC and generalization ability.
-
+- 	KNN was inconsistent.
+- Decision Tree had the lowest AUC and generalization ability	
+ 
 #### Performance Trends Across Sample Sizes
 - Small Sample Sizes (n = 100):
- - Naïve Bayes and Logistic Regression were the most effective.
- - 	Random Forest and Decision Tree underperformed due to overfitting or variance.
- - 	KNN struggled due to the sparsity of neighbours in low data volumes.
-•	Medium Sample Sizes (n = 500–1000):
-o	All models showed improvement.
-o	Random Forest became more competitive.
-o	Logistic Regression and Naïve Bayes maintained consistent dominance.
-•	Large Sample Sizes (n = 2000):
-o	Model performances stabilized.
-o	Naïve Bayes and Logistic Regression remained the top performers.
-o	Random Forest approached similar performance but still trailed slightly.
-o	KNN improved modestly.
-o	Decision Tree continued to lag behind in every metric.
+  - Naïve Bayes and Logistic Regression were the most effective.
+  - Random Forest and Decision Tree underperformed due to overfitting or variance.
+  - KNN struggled due to the sparsity of neighbours in low data volumes
+- Medium Sample Sizes (n = 500–1000):
+  - All models showed improvement.
+  - Random Forest became more competitive.
+  - Logistic Regression and Naïve Bayes maintained consistent dominance.
+- Large Sample Sizes (n = 2000):
+  - Model performances stabilized.
+  - Naïve Bayes and Logistic Regression remained the top performers.
+  - Random Forest approached similar performance but still trailed slightly.
+  - KNN improved modestly.
+  - Decision Tree continued to lag behind in every metric.
 
-5.4 Conclusions
+## Conclusions
 Based on the results, the following conclusions can be drawn:
 1.	Naïve Bayes and Logistic Regression are the most robust and consistent models across different sample sizes and evaluation metrics. Their simplicity and low variance make them highly suitable for both small and large datasets.
 2.	Random Forest, while more complex, shows promise with larger datasets but may require more computational resources and tuning to match the performance of simpler models.
@@ -186,15 +186,21 @@ Based on the results, the following conclusions can be drawn:
 4.	Decision Tree, although interpretable, struggles with generalization, especially as dataset size increases. It is highly prone to overfitting and should be used cautiously or in combination with ensemble methods like Random Forest.
 5.	Sample size significantly influences model performance. Models with high variance benefit greatly from increased data, while simpler models like Logistic Regression and Naïve Bayes maintain performance even with limited data.
 
-5.5 Recommendations
-5.5.1 Practical Recommendations
-•	For practitioners dealing with small datasets, Naïve Bayes or Logistic Regression is highly recommended due to their robustness, simplicity, and interpretability.
-•	For larger datasets with complex interactions, Random Forest can be a competitive choice, provided there is enough computational capacity and careful tuning is applied.
-•	Avoid using Decision Tree as a standalone model, especially with larger datasets. If interpretability is required, consider ensemble methods that retain tree-based structure but reduce overfitting.
-•	KNN should be used cautiously in high-dimensional data or with large sample sizes due to scalability issues. It can be effective in well-clustered and low-dimensional settings.
-•	Always evaluate models using multiple metrics (Precision, Recall, F1, AUC) to gain a comprehensive understanding of performance—especially when dealing with class imbalance.
+## Recommendations
+### Practical Recommendations
+- For practitioners dealing with small datasets, Naïve Bayes or Logistic Regression is highly recommended due to their robustness, simplicity, and interpretability.
+- For larger datasets with complex interactions, Random Forest can be a competitive choice, provided there is enough computational capacity and careful tuning is applied.
+- Avoid using Decision Tree as a standalone model, especially with larger datasets. If interpretability is required, consider ensemble methods that retain tree-based structure but reduce overfitting.
+- KNN should be used cautiously in high-dimensional data or with large sample sizes due to scalability issues. It can be effective in well-clustered and low-dimensional settings.
+- Always evaluate models using multiple metrics (Precision, Recall, F1, AUC) to gain a comprehensive understanding of performance—especially when dealing with class imbalance.
 
-5.5.2 Academic Recommendations
-•	Simulation-based studies should be integrated into ML education to help students understand model behaviours under controlled conditions.
-•	Emphasis should be placed on evaluating models beyond accuracy, particularly in sensitive domains like healthcare and finance.
+### Academic Recommendations
+- Simulation-based studies should be integrated into ML education to help students understand model behaviours under controlled conditions.
+- Emphasis should be placed on evaluating models beyond accuracy, particularly in sensitive domains like healthcare and finance.
 Benchmarking practices must become standard in applied research for reliable model comparisons.
+
+## Author
+**Enoch Amoo**
+_Data Scientist_
+[GitHub Profile](https://github.com/Yinka0567)
+[LinkedIn Profile](https://www.linkedin.com/in/amoo-enoch-b4515b24a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)
