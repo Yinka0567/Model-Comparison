@@ -1,0 +1,181 @@
+---
+title: "Model Comparison"
+author: "Enoch"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Model Comparisons
+
+## Final Year Undergraduate Project
+
+### Load Packages
+```{r}
+library(caret)
+library(e1071)       # For Naive Bayes
+library(randomForest)
+library(rpart)       # For Decision Tree
+library(MLmetrics)
+library(data.table)
+library(ggplot2)
+library(class)
+library(pROC)
+library(MASS)
+
+```
+
+
+
+```{r}
+
+# Function to generate synthetic data
+generate_data <- function(n) {
+  set.seed(123)
+  p <- 10  # Number of predictors
+  
+  # Generate multivariate normal features
+  mean_vector <- rep(0, p)
+  covariance_matrix <- diag(p)
+  X <- mvrnorm(n, mu = mean_vector, Sigma = covariance_matrix)
+  
+  # Convert to data frame
+  df <- as.data.frame(X)
+  colnames(df) <- paste0("x", 1:p)
+  
+  # Define logistic function
+  logistic <- function(z) { 1 / (1 + exp(-z)) }
+  
+  # Define coefficients and intercept
+  beta <- runif(p, -0.5, 0.5)
+  intercept <- 0
+  
+  # Compute linear predictor and probabilities
+  logit_values <- as.matrix(df) %*% beta + intercept
+  probabilities <- logistic(logit_values)
+  
+  # Generate binary response variable
+  df$y <- factor(rbinom(n, 1, probabilities), levels = c(0, 1))
+  
+  return(df)
+}
+
+# Function to calculate metrics
+calculate_metrics <- function(actual, predicted, prob) {
+  actual <- factor(actual, levels = c("0", "1"))
+  predicted <- factor(predicted, levels = c("0", "1"))
+  
+  # Confusion Matrix
+  confusion <- confusionMatrix(predicted, actual, positive = "1")
+  
+  # Precision, Recall, and F1 Score
+  precision <- confusion$byClass["Precision"]
+  recall <- confusion$byClass["Recall"]
+  f1 <- (2 * precision * recall) / (precision + recall)  # F1 Score
+  
+  # AUC Calculation
+  auc_value <- auc(roc(actual, prob))
+  
+  return(data.frame(Precision = precision, Recall = recall, F1Score = f1, AUC = auc_value))
+}
+
+# Define sample sizes
+sample_sizes <- c(100, 500, 1000, 2000)
+results <- list()
+
+# Iterate over different sample sizes
+for (n in sample_sizes) {
+  set.seed(123)
+  
+  # Generate data
+  data <- generate_data(n)
+  train_index <- createDataPartition(data$y, p = 0.8, list = FALSE)
+  train <- data[train_index, ]
+  test <- data[-train_index, ]
+  
+  # Logistic Regression
+  log_model <- glm(y ~ ., family = binomial, data = train)
+  log_prob <- predict(log_model, test, type = "response")
+  log_pred <- factor(ifelse(log_prob > 0.5, "1", "0"), levels = c("0", "1"))
+  
+  # K-Nearest Neighbors
+  knn_pred <- knn(train = train[, -ncol(train)], test = test[, -ncol(test)], cl = train$y, k = 5)
+  knn_prob <- as.numeric(knn_pred) - 1  # Convert factor to numeric probability
+  
+  # Naive Bayes
+  nb_model <- naiveBayes(y ~ ., data = train)
+  nb_prob <- predict(nb_model, test, type = "raw")[, 2]
+  nb_pred <- predict(nb_model, test)
+  
+  # Decision Tree
+  dt_model <- rpart(y ~ ., data = train, method = "class")
+  dt_prob <- predict(dt_model, test, type = "prob")[, 2]
+  dt_pred <- predict(dt_model, test, type = "class")
+  
+  # Random Forest
+  rf_model <- randomForest(y ~ ., data = train, ntree = 100)
+  rf_prob <- predict(rf_model, test, type = "prob")[, 2]
+  rf_pred <- predict(rf_model, test, type = "class")
+  
+  # Compute metrics for all models
+  log_metrics <- calculate_metrics(test$y, log_pred, log_prob)
+  knn_metrics <- calculate_metrics(test$y, knn_pred, knn_prob)
+  nb_metrics <- calculate_metrics(test$y, nb_pred, nb_prob)
+  dt_metrics <- calculate_metrics(test$y, dt_pred, dt_prob)
+  rf_metrics <- calculate_metrics(test$y, rf_pred, rf_prob)
+  
+  # Store results
+  results[[paste0("n_", n)]] <- rbind(
+    data.table(Model = "Logistic Regression", SampleSize = n, Precision = log_metrics$Precision, Recall = log_metrics$Recall, F1Score = log_metrics$F1Score, AUC = log_metrics$AUC),
+    data.table(Model = "KNN", SampleSize = n, Precision = knn_metrics$Precision, Recall = knn_metrics$Recall, F1Score = knn_metrics$F1Score, AUC = knn_metrics$AUC),
+    data.table(Model = "Naive Bayes", SampleSize = n, Precision = nb_metrics$Precision, Recall = nb_metrics$Recall, F1Score = nb_metrics$F1Score, AUC = nb_metrics$AUC),
+    data.table(Model = "Decision Tree", SampleSize = n, Precision = dt_metrics$Precision, Recall = dt_metrics$Recall, F1Score = dt_metrics$F1Score, AUC = dt_metrics$AUC),
+    data.table(Model = "Random Forest", SampleSize = n, Precision = rf_metrics$Precision, Recall = rf_metrics$Recall, F1Score = rf_metrics$F1Score, AUC = rf_metrics$AUC)
+  )
+}
+
+
+```
+
+### Combining Result
+
+```{r}
+# Combine all results
+final_results <- rbindlist(results)
+print(final_results)
+
+```
+
+### Visualization
+
+```{r}
+# Visualization of results
+ggplot(final_results, aes(x = SampleSize, y = Precision, color = Model)) +
+  geom_line() + geom_point() +
+  labs(title = "Precision vs. Sample Size", x = "Sample Size", y = "Precision") +
+  theme_minimal()
+
+```
+
+```{r}
+ggplot(final_results, aes(x = SampleSize, y = Recall, color = Model)) +
+  geom_line() + geom_point() +
+  labs(title = "Recall vs. Sample Size", x = "Sample Size", y = "Recall") +
+  theme_minimal()
+
+```
+
+```{r}
+ggplot(final_results, aes(x = SampleSize, y = F1Score, color = Model)) +
+  geom_line() + geom_point() +
+  labs(title = "F1 Score vs. Sample Size", x = "Sample Size", y = "F1 Score") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(final_results, aes(x = SampleSize, y = AUC, color = Model)) +
+  geom_line() + geom_point() +
+  labs(title = "AUC vs. Sample Size", x = "Sample Size", y = "AUC") +
+  theme_minimal()
+```
